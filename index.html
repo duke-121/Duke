@@ -770,7 +770,7 @@
         const shiftsText = (dayEntry.shifts || []).map(s => {
           const cat = getShiftCategory(s);
           return cat.time ? `${cat.label}: ${cat.time}` : cat.label;
-        }).join('; ') || '-nghỉ-';
+        }).join('; ') || '-Nghỉ-';
 
         const noteText = (dayEntry.note || '').replace(/"/g, '""');
 
@@ -1050,7 +1050,7 @@
         } else {
           shiftsHtml = `
             <div class="text-[11px] font-medium text-slate-400 italic py-2 text-center w-full select-none tracking-wider">
-              -nghỉ-
+              -Nghỉ-
             </div>
           `;
         }
@@ -1145,7 +1145,7 @@
             `;
           }).join(' ');
         } else {
-          shiftsBadgesHtml = '<span class="text-slate-400 italic text-xs font-medium">-nghỉ-</span>';
+          shiftsBadgesHtml = '<span class="text-slate-400 italic text-xs font-medium">-Nghỉ-</span>';
         }
 
         const noteDisplay = dayData.note
