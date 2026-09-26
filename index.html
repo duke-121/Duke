@@ -176,7 +176,7 @@
           <span class="w-2 h-2 rounded-full bg-amber-500"></span> ⭐ Tùy chỉnh
         </span>
         <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl font-bold bg-red-50 text-red-700 border border-red-200">
-      📌 Ghi chú
+          📌 Ghi chú
         </span>
       </div>
 
@@ -274,24 +274,24 @@
 
       <!-- Modal Body -->
       <div class="p-4 sm:p-5 space-y-4 sm:space-y-5 max-h-[75vh] overflow-y-auto overflow-x-hidden">
-        <!-- Bật/tắt ca trực theo 3 nhóm chuẩn -->
+        <!-- Bật/tắt ca trực theo 3 ca chuẩn: Đi học, HD, BT -->
         <div>
           <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
             Chọn các ca chuẩn (Bấm để bật/tắt):
           </label>
           <div class="space-y-2.5 sm:space-y-3" id="modalShiftToggles">
-            <!-- Rendered by JS -->
+            <!-- Rendered by JS: Chỉ hiện Đi học, HD, BT -->
           </div>
         </div>
 
-        <!-- Ca tùy chỉnh khác: Format 24h với dropdown giờ chuẩn, nút xóa gọn gàng nằm trong ô -->
+        <!-- Ca tùy chỉnh khác: Format 24h với dropdown số thuần túy, nút xóa gọn gàng nằm trong ô -->
         <div class="pt-3 border-t border-slate-100 space-y-2.5">
           <div class="flex items-center justify-between">
             <div>
               <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">
                 Ca tùy chỉnh khác
               </label>
-              <p class="text-[11px] text-slate-400 mt-0.5">Chọn giờ 24h &amp; nhập nội dung ca trực</p>
+              <p class="text-[11px] text-slate-400 mt-0.5">Chọn giờ &amp; phút theo số 24h và nhập nội dung ca</p>
             </div>
             <button type="button" onclick="addCustomShiftRow()" class="inline-flex items-center gap-1.5 text-xs font-bold text-brand-600 hover:text-brand-700 bg-brand-50 hover:bg-brand-100 px-3 py-1.5 rounded-xl border border-brand-200 transition shadow-2xs">
               <span class="text-sm font-extrabold leading-none">+</span> Thêm ca
@@ -415,8 +415,8 @@
     }
 
     /**
-     * TẠO DANH SÁCH GIỜ THEO 24H (00h ĐẾN 24h)
-     * Tuyệt đối không chia AM / PM
+     * TẠO DANH SÁCH GIỜ THEO 24H: CHỈ HIỂN THỊ SỐ THUẦN TÚY (00 ĐẾN 24)
+     * Không thêm chữ "h", không phân chia AM / PM
      */
     function generate24HourOptions(selectedValue = '') {
       let html = '<option value="">Giờ</option>';
@@ -424,14 +424,15 @@
       for (let h = 0; h <= 24; h++) {
         const val = String(h).padStart(2, '0');
         const isSelected = (val === normalizedSel);
-        html += `<option value="${val}" ${isSelected ? 'selected' : ''}>${val}h</option>`;
+        // Chỉ hiển thị số thuần túy (VD: 00, 01, 07, 14, 24)
+        html += `<option value="${val}" ${isSelected ? 'selected' : ''}>${val}</option>`;
       }
       return html;
     }
 
     /**
-     * TẠO DANH SÁCH PHÚT (00p ĐẾN 55p, BƯỚC NHẢY 5 PHÚT)
-     * Tự động nhận diện phút lẻ nếu có từ trước
+     * TẠO DANH SÁCH PHÚT: CHỈ HIỂN THỊ SỐ THUẦN TÚY (00 ĐẾN 55, BƯỚC NHẢY 5 PHÚT)
+     * Không thêm chữ "p"
      */
     function generateMinuteOptions(selectedValue = '') {
       let html = '<option value="">Phút</option>';
@@ -450,7 +451,8 @@
 
       minuteList.forEach(mStr => {
         const isSelected = (mStr === normalizedSel);
-        html += `<option value="${mStr}" ${isSelected ? 'selected' : ''}>${mStr}p</option>`;
+        // Chỉ hiển thị số thuần túy (VD: 00, 05, 15, 30)
+        html += `<option value="${mStr}" ${isSelected ? 'selected' : ''}>${mStr}</option>`;
       });
       return html;
     }
@@ -487,7 +489,7 @@
 
     /**
      * THÊM DÒNG CA TÙY CHỈNH:
-     * - Chọn Giờ và Phút riêng biệt theo chuẩn 24H (không có AM / PM).
+     * - Chọn Giờ và Phút riêng biệt chỉ hiển thị số thuần túy.
      * - Nút XÓA nằm gọn gàng bên trong khung thẻ.
      */
     function addCustomShiftRow(label = '', startH = '', startM = '', endH = '', endM = '') {
@@ -509,7 +511,7 @@
           </button>
         </div>
 
-        <!-- Dòng 2: Khung chọn giờ & phút 24h (Từ - Đến) không có AM/PM -->
+        <!-- Dòng 2: Khung chọn giờ & phút (Từ - Đến) chỉ hiển thị số -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 bg-white border border-slate-200 rounded-lg p-2.5 text-xs">
           <!-- Từ: Giờ & Phút -->
           <div class="flex items-center gap-1.5">
@@ -1194,6 +1196,9 @@
       modal.classList.add('flex');
     }
 
+    /**
+     * HIỂN THỊ CÁC CA CHUẨN: CHỈ HIỂN THỊ "Đi học", "HD", "BT" (BỎ CHỮ "NHÓM")
+     */
     function renderModalShiftToggles() {
       const container = document.getElementById('modalShiftToggles');
       if (!container) return;
@@ -1209,9 +1214,10 @@
         const groupCard = document.createElement('div');
         groupCard.className = 'p-3 rounded-xl border border-slate-200/80 bg-slate-50/60 space-y-2';
 
+        // Tiêu đề ngắn gọn: chỉ hiện "Đi học", "HD", "BT" không có chữ "Nhóm"
         const header = document.createElement('div');
         header.className = 'flex items-center gap-1.5 text-xs font-bold text-slate-700';
-        header.innerHTML = `<span class="w-2 h-2 rounded-full ${cat.dot}"></span><span>Nhóm ${label}</span>`;
+        header.innerHTML = `<span class="w-2 h-2 rounded-full ${cat.dot}"></span><span>${label}</span>`;
         groupCard.appendChild(header);
 
         const buttonsGrid = document.createElement('div');
