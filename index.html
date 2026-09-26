@@ -8,6 +8,7 @@
   <link rel="icon" type="image/x-icon" href="./favicon.ico">
   <link rel="shortcut icon" type="image/x-icon" href="./favicon.ico">
   <link rel="apple-touch-icon" href="./favicon.ico">
+
   <!-- Google Fonts: Inter -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -769,7 +770,7 @@
         const shiftsText = (dayEntry.shifts || []).map(s => {
           const cat = getShiftCategory(s);
           return cat.time ? `${cat.label}: ${cat.time}` : cat.label;
-        }).join('; ');
+        }).join('; ') || '-nghỉ-';
 
         const noteText = (dayEntry.note || '').replace(/"/g, '""');
 
@@ -1046,6 +1047,12 @@
               </div>
             `;
           }).join('');
+        } else {
+          shiftsHtml = `
+            <div class="text-[11px] font-medium text-slate-400 italic py-2 text-center w-full select-none tracking-wider">
+              -nghỉ-
+            </div>
+          `;
         }
 
         const noteBadge = dayData.note
@@ -1138,7 +1145,7 @@
             `;
           }).join(' ');
         } else {
-          shiftsBadgesHtml = '<span class="text-slate-400 italic text-xs">Nghỉ / Không có ca</span>';
+          shiftsBadgesHtml = '<span class="text-slate-400 italic text-xs font-medium">-nghỉ-</span>';
         }
 
         const noteDisplay = dayData.note
