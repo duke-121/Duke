@@ -64,6 +64,12 @@
     .color-swatch-ring:hover {
       transform: scale(1.18);
     }
+    .color-tab-btn.active {
+      background-color: #2563eb;
+      color: #ffffff;
+      font-weight: 700;
+      border-color: #2563eb;
+    }
   </style>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col selection:bg-brand-500 selection:text-white">
@@ -86,7 +92,7 @@
     </div>
   </div>
 
-  <!-- Modal Thêm Ca Mới Vào Phân Loại Của Tháng: Đầy đủ tone Nóng & Lạnh -->
+  <!-- Modal Thêm Ca Mới Vào Phân Loại Của Tháng: Siêu nhiều màu sắc + Bộ chọn màu tự do -->
   <div id="addCategoryShiftModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[9997] hidden items-center justify-center p-3 sm:p-4 overflow-y-auto transition-opacity">
     <div class="bg-white rounded-2xl p-5 sm:p-6 max-w-lg w-full shadow-2xl border border-slate-100 my-auto animate-in fade-in zoom-in duration-150" id="addCategoryShiftCard">
       <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
@@ -105,7 +111,7 @@
           <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
             Tên ca / Phân loại ca:
           </label>
-          <input type="text" id="modalNewShift_name" placeholder="Nhập tên ca (VD: Đi học, Đi làm...)" class="w-full text-xs font-semibold px-3 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500 bg-slate-50 focus:bg-white transition placeholder:text-slate-400 shadow-2xs">
+          <input type="text" id="modalNewShift_name" placeholder="Nhập tên ca (VD: Đi học, Đi làm, Trực đêm...)" class="w-full text-xs font-semibold px-3 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500 bg-slate-50 focus:bg-white transition placeholder:text-slate-400 shadow-2xs">
         </div>
 
         <!-- Khung chọn giờ 24h -->
@@ -135,18 +141,59 @@
           </div>
         </div>
 
-        <!-- Khung chọn màu sắc: Chia nhóm Tone Nóng & Lạnh -->
-        <div class="space-y-2 pt-1 border-t border-slate-100">
+        <!-- Khung chọn màu sắc phong phú: Hơn 40 màu + Tự do pha màu -->
+        <div class="space-y-2.5 pt-1 border-t border-slate-100">
           <div class="flex items-center justify-between">
             <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">
-              Màu sắc:
+              Chọn màu sắc ca trực:
             </label>
-            <span id="selectedColorNameLabel" class="text-[11px] font-bold text-brand-600 bg-brand-50 px-2 py-0.5 rounded-md border border-brand-200">Tự động chọn</span>
+            <span id="selectedColorNameLabel" class="text-[11px] font-bold text-brand-600 bg-brand-50 px-2 py-0.5 rounded-md border border-brand-200 truncate max-w-[200px]">
+              Tự động chọn
+            </span>
           </div>
-          <p class="text-[11px] text-slate-400 leading-snug">Hệ thống tự động ưu tiên màu chưa dùng trong tháng, hoặc bạn có thể chọn màu tùy ý:</p>
-          
-          <div id="modalColorSwatchesContainer" class="space-y-3 pt-1">
-            <!-- Rendered dynamically by JS with Warm & Cool sections -->
+
+          <!-- Bộ lọc nhóm màu trực quan -->
+          <div class="flex flex-wrap items-center gap-1 bg-slate-100/90 p-1 rounded-xl text-[11px]">
+            <button type="button" onclick="setColorGroupFilter('all')" class="color-tab-btn active px-2 py-1 rounded-lg transition font-medium border border-transparent">
+              Tất cả (43)
+            </button>
+            <button type="button" onclick="setColorGroupFilter('warm')" class="color-tab-btn px-2 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition font-medium border border-transparent">
+              🔥 Nóng (14)
+            </button>
+            <button type="button" onclick="setColorGroupFilter('cool')" class="color-tab-btn px-2 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition font-medium border border-transparent">
+              ❄️ Lạnh (16)
+            </button>
+            <button type="button" onclick="setColorGroupFilter('pastel')" class="color-tab-btn px-2 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition font-medium border border-transparent">
+              🌸 Pastel (6)
+            </button>
+            <button type="button" onclick="setColorGroupFilter('earth')" class="color-tab-btn px-2 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition font-medium border border-transparent">
+              🌿 Đất (4)
+            </button>
+            <button type="button" onclick="setColorGroupFilter('neutral')" class="color-tab-btn px-2 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition font-medium border border-transparent">
+              🌫️ Xám (3)
+            </button>
+          </div>
+
+          <!-- Lưới các ô màu thiết kế sẵn -->
+          <div id="modalColorSwatchesContainer" class="space-y-2.5 max-h-52 overflow-y-auto pr-1">
+            <!-- Rendered dynamically by JS -->
+          </div>
+
+          <!-- Công cụ tự do pha màu (Custom Color Picker) -->
+          <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 border border-slate-200 mt-2">
+            <div class="flex items-center gap-2">
+              <span class="text-sm">🎨</span>
+              <div>
+                <div class="text-[11px] font-bold text-slate-800">Tự chọn màu tùy ý:</div>
+                <div class="text-[10px] text-slate-400">Pha màu riêng theo sở thích</div>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <input type="color" id="customColorPickerInput" oninput="onCustomColorPicked(this.value)" class="w-8 h-8 rounded-lg cursor-pointer border border-slate-200 bg-white p-0.5">
+              <button type="button" onclick="document.getElementById('customColorPickerInput').click()" class="text-[11px] font-bold text-brand-600 hover:text-brand-700 bg-white border border-slate-200 px-2.5 py-1.5 rounded-lg transition shadow-2xs">
+                Chọn mã màu
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -258,7 +305,7 @@
         </button>
         <button id="viewListBtn" onclick="switchView('list')" class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:text-slate-900 transition">
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
-        Bảng Chi Tiết
+          📋 Bảng Chi Tiết
         </button>
       </div>
     </div>
@@ -342,7 +389,7 @@
         </button>
       </div>
 
-      <!-- Modal Body: Chỉ chọn ca trực đã có & ghi chú -->
+      <!-- Modal Body: Bật/tắt ca trực đã có & ghi chú -->
       <div class="p-4 sm:p-5 space-y-4 max-h-[75vh] overflow-y-auto overflow-x-hidden">
         <!-- Danh sách ca trực của tháng -->
         <div>
@@ -359,7 +406,7 @@
           <label class="block text-xs font-semibold text-slate-700 mb-1">
             Ghi chú thêm:
           </label>
-          <input type="text" id="modalNoteInput" placeholder="Ví dụ: Đọc sách, Làm BT..." class="w-full text-xs px-3 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500 bg-slate-50 focus:bg-white transition">
+          <input type="text" id="modalNoteInput" placeholder="Ví dụ: Đọc sách, Làm BT, Nghỉ phép..." class="w-full text-xs px-3 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500 bg-slate-50 focus:bg-white transition">
         </div>
       </div>
 
@@ -443,35 +490,62 @@
     };
 
     /**
-     * BẢNG MÀU PHÂN LOẠI TOÀN DIỆN (20 MÀU) GỒM CẢ TONE NÓNG, TONE LẠNH VÀ TRUNG TÍNH
-     * Phân nhóm rõ ràng, độ tương phản cao, không bao giờ trùng màu.
+     * BẢNG MÀU PHÂN LOẠI TOÀN DIỆN (43 MÀU THIẾT KẾ SẴN)
+     * Gồm: 14 Tone Nóng, 16 Tone Lạnh, 6 Tone Pastel, 4 Tone Đất & 3 Tone Trung Tính
      */
     const DISTINCT_COLOR_PALETTES = [
-      // === TONE MÀU NÓNG (WARM COLORS) ===
+      // === 🔥 TONE MÀU NÓNG (WARM TONES - 14 MÀU) ===
       { id: 'red', group: 'warm', label: 'Đỏ rực', badgeClass: 'bg-red-100 text-red-950 border-red-300', dot: 'bg-red-600', hex: '#dc2626' },
+      { id: 'crimson', group: 'warm', label: 'Đỏ thẫm', badgeClass: 'bg-red-200 text-red-950 border-red-400', dot: 'bg-red-700', hex: '#b91c1c' },
       { id: 'rose', group: 'warm', label: 'Hồng ruby', badgeClass: 'bg-rose-100 text-rose-950 border-rose-300', dot: 'bg-rose-500', hex: '#f43f5e' },
+      { id: 'coral', group: 'warm', label: 'Đào san hô', badgeClass: 'bg-rose-200 text-rose-950 border-rose-400', dot: 'bg-rose-600', hex: '#e11d48' },
       { id: 'fuchsia', group: 'warm', label: 'Hồng cánh sen', badgeClass: 'bg-fuchsia-100 text-fuchsia-950 border-fuchsia-300', dot: 'bg-fuchsia-600', hex: '#c026d3' },
       { id: 'pink', group: 'warm', label: 'Hồng phấn', badgeClass: 'bg-pink-100 text-pink-950 border-pink-300', dot: 'bg-pink-500', hex: '#ec4899' },
+      { id: 'magenta', group: 'warm', label: 'Hồng tím đậm', badgeClass: 'bg-pink-200 text-pink-950 border-pink-400', dot: 'bg-pink-600', hex: '#db2777' },
       { id: 'orange', group: 'warm', label: 'Cam tươi', badgeClass: 'bg-orange-100 text-orange-950 border-orange-300', dot: 'bg-orange-500', hex: '#ea580c' },
+      { id: 'sunset', group: 'warm', label: 'Cam hoàng hôn', badgeClass: 'bg-orange-200 text-orange-950 border-orange-400', dot: 'bg-orange-600', hex: '#c2410c' },
       { id: 'amber', group: 'warm', label: 'Cam hổ phách', badgeClass: 'bg-amber-100 text-amber-950 border-amber-300', dot: 'bg-amber-500', hex: '#d97706' },
+      { id: 'honey', group: 'warm', label: 'Vàng mật ong', badgeClass: 'bg-amber-200 text-amber-950 border-amber-400', dot: 'bg-amber-600', hex: '#b45309' },
       { id: 'yellow', group: 'warm', label: 'Vàng nghệ', badgeClass: 'bg-yellow-100 text-yellow-950 border-yellow-300', dot: 'bg-yellow-600', hex: '#ca8a04' },
+      { id: 'rust', group: 'warm', label: 'Nâu rỉ sắt', badgeClass: 'bg-orange-950/15 text-orange-950 border-orange-700/30', dot: 'bg-orange-800', hex: '#9a3412' },
       { id: 'stone', group: 'warm', label: 'Nâu đất ấm', badgeClass: 'bg-stone-200 text-stone-900 border-stone-400', dot: 'bg-stone-600', hex: '#78350f' },
 
-      // === TONE MÀU LẠNH (COOL COLORS) ===
-      { id: 'blue', group: 'cool', label: 'Xanh coban', badgeClass: 'bg-blue-100 text-blue-950 border-blue-300', dot: 'bg-blue-600', hex: '#2563eb' },
+      // === ❄️ TONE MÀU LẠNH (COOL TONES - 16 MÀU) ===
+      { id: 'cobalt', group: 'cool', label: 'Xanh coban', badgeClass: 'bg-blue-200 text-blue-950 border-blue-400', dot: 'bg-blue-700', hex: '#1d4ed8' },
+      { id: 'blue', group: 'cool', label: 'Xanh biển tươi', badgeClass: 'bg-blue-100 text-blue-950 border-blue-300', dot: 'bg-blue-600', hex: '#2563eb' },
       { id: 'sky', group: 'cool', label: 'Xanh da trời', badgeClass: 'bg-sky-100 text-sky-950 border-sky-300', dot: 'bg-sky-500', hex: '#0284c7' },
-      { id: 'cyan', group: 'cool', label: 'Xanh băng lam', badgeClass: 'bg-cyan-100 text-cyan-950 border-cyan-300', dot: 'bg-cyan-600', hex: '#0891b2' },
+      { id: 'ice', group: 'cool', label: 'Xanh băng lam', badgeClass: 'bg-sky-200 text-sky-950 border-sky-400', dot: 'bg-sky-600', hex: '#0369a1' },
+      { id: 'cyan', group: 'cool', label: 'Xanh ngọc lam', badgeClass: 'bg-cyan-100 text-cyan-950 border-cyan-300', dot: 'bg-cyan-600', hex: '#0891b2' },
       { id: 'teal', group: 'cool', label: 'Xanh mòng két', badgeClass: 'bg-teal-100 text-teal-950 border-teal-300', dot: 'bg-teal-600', hex: '#0d9488' },
       { id: 'emerald', group: 'cool', label: 'Xanh ngọc bích', badgeClass: 'bg-emerald-100 text-emerald-950 border-emerald-300', dot: 'bg-emerald-600', hex: '#059669' },
+      { id: 'forest', group: 'cool', label: 'Xanh rừng già', badgeClass: 'bg-emerald-200 text-emerald-950 border-emerald-400', dot: 'bg-emerald-700', hex: '#047857' },
       { id: 'green', group: 'cool', label: 'Xanh lá tươi', badgeClass: 'bg-green-100 text-green-950 border-green-300', dot: 'bg-green-600', hex: '#16a34a' },
+      { id: 'mint', group: 'cool', label: 'Xanh bạc hà', badgeClass: 'bg-green-200 text-green-950 border-green-400', dot: 'bg-green-700', hex: '#15803d' },
       { id: 'lime', group: 'cool', label: 'Xanh cốm non', badgeClass: 'bg-lime-100 text-lime-950 border-lime-300', dot: 'bg-lime-600', hex: '#65a30d' },
       { id: 'indigo', group: 'cool', label: 'Xanh chàm', badgeClass: 'bg-indigo-100 text-indigo-950 border-indigo-300', dot: 'bg-indigo-600', hex: '#4f46e5' },
+      { id: 'deepindigo', group: 'cool', label: 'Xanh tím than', badgeClass: 'bg-indigo-200 text-indigo-950 border-indigo-400', dot: 'bg-indigo-700', hex: '#4338ca' },
       { id: 'violet', group: 'cool', label: 'Tím hoa cà', badgeClass: 'bg-violet-100 text-violet-950 border-violet-300', dot: 'bg-violet-600', hex: '#7c3aed' },
       { id: 'purple', group: 'cool', label: 'Tím thạch anh', badgeClass: 'bg-purple-100 text-purple-950 border-purple-300', dot: 'bg-purple-600', hex: '#9333ea' },
+      { id: 'plum', group: 'cool', label: 'Tím mận chín', badgeClass: 'bg-purple-200 text-purple-950 border-purple-400', dot: 'bg-purple-700', hex: '#7e22ce' },
 
-      // === TONE TRUNG TÍNH (NEUTRAL COLORS) ===
+      // === 🌸 TONE PASTEL / KẸO NGỌT (PASTEL TONES - 6 MÀU) ===
+      { id: 'pastel_pink', group: 'pastel', label: 'Hồng kem ngọt', badgeClass: 'bg-rose-50 text-rose-900 border-rose-200', dot: 'bg-rose-400', hex: '#fb7185' },
+      { id: 'pastel_peach', group: 'pastel', label: 'Cam đào pastel', badgeClass: 'bg-orange-50 text-orange-900 border-orange-200', dot: 'bg-orange-400', hex: '#fb923c' },
+      { id: 'pastel_yellow', group: 'pastel', label: 'Vàng chanh dịu', badgeClass: 'bg-yellow-50 text-yellow-900 border-yellow-200', dot: 'bg-yellow-500', hex: '#facc15' },
+      { id: 'pastel_mint', group: 'pastel', label: 'Bạc hà dịu mát', badgeClass: 'bg-emerald-50 text-emerald-900 border-emerald-200', dot: 'bg-emerald-400', hex: '#34d399' },
+      { id: 'pastel_sky', group: 'pastel', label: 'Xanh lam mây', badgeClass: 'bg-sky-50 text-sky-900 border-sky-200', dot: 'bg-sky-400', hex: '#38bdf8' },
+      { id: 'pastel_lavender', group: 'pastel', label: 'Oải hương pastel', badgeClass: 'bg-purple-50 text-purple-900 border-purple-200', dot: 'bg-purple-400', hex: '#c084fc' },
+
+      // === 🌿 TONE ĐẤT & TỰ NHIÊN (EARTH TONES - 4 MÀU) ===
+      { id: 'olive', group: 'earth', label: 'Xanh ô liu', badgeClass: 'bg-lime-950/15 text-lime-950 border-lime-700/30', dot: 'bg-lime-800', hex: '#3f6212' },
+      { id: 'moss', group: 'earth', label: 'Xanh rêu cổ', badgeClass: 'bg-emerald-950/15 text-emerald-950 border-emerald-800/30', dot: 'bg-emerald-800', hex: '#065f46' },
+      { id: 'coffee', group: 'earth', label: 'Nâu cà phê', badgeClass: 'bg-stone-300 text-stone-950 border-stone-500', dot: 'bg-stone-700', hex: '#57534e' },
+      { id: 'mocha', group: 'earth', label: 'Nâu sô-cô-la', badgeClass: 'bg-amber-950/15 text-amber-950 border-amber-900/30', dot: 'bg-amber-900', hex: '#451a03' },
+
+      // === 🌫️ TONE TRUNG TÍNH (NEUTRAL TONES - 3 MÀU) ===
       { id: 'slate', group: 'neutral', label: 'Xám khói', badgeClass: 'bg-slate-200 text-slate-800 border-slate-300', dot: 'bg-slate-600', hex: '#475569' },
-      { id: 'zinc', group: 'neutral', label: 'Xám chì', badgeClass: 'bg-zinc-200 text-zinc-800 border-zinc-300', dot: 'bg-zinc-600', hex: '#52525b' }
+      { id: 'zinc', group: 'neutral', label: 'Xám chì', badgeClass: 'bg-zinc-200 text-zinc-800 border-zinc-300', dot: 'bg-zinc-600', hex: '#52525b' },
+      { id: 'charcoal', group: 'neutral', label: 'Than chì sâu', badgeClass: 'bg-slate-300 text-slate-900 border-slate-400', dot: 'bg-slate-800', hex: '#1e293b' }
     ];
 
     // Lưu danh mục ca độc lập theo từng tháng: { "2026-10": { ... }, "2026-11": { ... } }
@@ -485,7 +559,11 @@
     let tempSelectedShifts = new Set();
     let currentViewMode = 'grid';
     let listFilterMode = 'all';
+
+    // Trạng thái chọn màu sắc trong modal
     let selectedAddModalPaletteId = null;
+    let customColorHex = null;
+    let activeColorGroupFilter = 'all';
 
     function escapeHtml(str) {
       if (str === null || str === undefined) return '';
@@ -501,13 +579,8 @@
       return `${year}-${String(month + 1).padStart(2, '0')}`;
     }
 
-    /**
-     * TẢI CẤU HÌNH PHÂN LOẠI CA:
-     * - CHỈ Tháng 10/2026 có sẵn các ca mặc định (Đi học, HD, BT).
-     * - TẤT CẢ các tháng khác KHÔNG có sẵn các ca này, bắt đầu hoàn toàn trống.
-     */
     function loadAllMonthlyShiftCategories() {
-      const STORAGE_KEY = 'user_monthly_shift_categories_v9';
+      const STORAGE_KEY = 'user_monthly_shift_categories_v10';
       const saved = localStorage.getItem(STORAGE_KEY);
       
       if (saved) {
@@ -520,7 +593,7 @@
         monthlyShiftCategoriesStore = {};
       }
 
-      // Đảm bảo Tháng 10/2026 có dữ liệu chuẩn ban đầu nếu chưa từng được khởi tạo
+      // Đảm bảo Tháng 10/2026 có dữ liệu chuẩn ban đầu nếu chưa từng khởi tạo
       if (!monthlyShiftCategoriesStore.hasOwnProperty('2026-10')) {
         monthlyShiftCategoriesStore['2026-10'] = JSON.parse(JSON.stringify(DEFAULT_SHIFT_CATEGORIES));
       }
@@ -529,7 +602,7 @@
     }
 
     function persistMonthlyShiftCategories() {
-      const STORAGE_KEY = 'user_monthly_shift_categories_v9';
+      const STORAGE_KEY = 'user_monthly_shift_categories_v10';
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(monthlyShiftCategoriesStore));
       } catch (e) {
@@ -537,9 +610,6 @@
       }
     }
 
-    /**
-     * Lấy cấu hình phân loại ca của riêng một tháng.
-     */
     function getCategoriesForMonth(year, month) {
       const key = getMonthKey(year, month);
       if (!monthlyShiftCategoriesStore[key]) {
@@ -553,45 +623,61 @@
       return monthlyShiftCategoriesStore[key];
     }
 
-    /**
-     * TÌM MÀU SẮC TIẾP THEO CHƯA ĐƯỢC SỬ DỤNG TRONG THÁNG ĐÓ
-     */
     function getNextUnusedPalette(currentCats) {
-      const usedClasses = new Set();
+      const usedHexes = new Set();
       Object.values(currentCats).forEach(cat => {
-        if (cat.badgeClass) usedClasses.add(cat.badgeClass);
+        if (cat.hex) usedHexes.add(cat.hex.toLowerCase());
       });
 
       for (const pal of DISTINCT_COLOR_PALETTES) {
-        if (!usedClasses.has(pal.badgeClass)) {
+        if (!usedHexes.has(pal.hex.toLowerCase())) {
           return pal;
         }
       }
       return DISTINCT_COLOR_PALETTES[0];
     }
 
-    /**
-     * HIỂN THỊ CÁC Ô MÀU THEO PHÂN NHÓM: TONE NÓNG, TONE LẠNH VÀ TRUNG TÍNH
-     */
+    function setColorGroupFilter(group) {
+      activeColorGroupFilter = group;
+      const tabBtns = document.querySelectorAll('.color-tab-btn');
+      tabBtns.forEach(btn => {
+        btn.classList.remove('active');
+        btn.className = 'color-tab-btn px-2 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition font-medium border border-transparent';
+      });
+
+      if (event && event.currentTarget) {
+        event.currentTarget.className = 'color-tab-btn active px-2 py-1 rounded-lg transition font-medium border border-transparent';
+      }
+
+      const currentCats = getCategoriesForMonth(currentYear, currentMonth);
+      renderColorSwatchesInAddModal(currentCats);
+    }
+
     function renderColorSwatchesInAddModal(currentCats) {
       const container = document.getElementById('modalColorSwatchesContainer');
       if (!container) return;
       container.innerHTML = '';
 
-      const usedClasses = new Set();
+      const usedHexes = new Set();
       Object.values(currentCats).forEach(cat => {
-        if (cat.badgeClass) usedClasses.add(cat.badgeClass);
+        if (cat.hex) usedHexes.add(cat.hex.toLowerCase());
       });
 
-      const groups = [
+      const allGroups = [
         { key: 'warm', title: '🔥 Tone Màu Nóng', list: DISTINCT_COLOR_PALETTES.filter(p => p.group === 'warm') },
         { key: 'cool', title: '❄️ Tone Màu Lạnh', list: DISTINCT_COLOR_PALETTES.filter(p => p.group === 'cool') },
+        { key: 'pastel', title: '🌸 Tone Pastel / Ngọt Ngào', list: DISTINCT_COLOR_PALETTES.filter(p => p.group === 'pastel') },
+        { key: 'earth', title: '🌿 Tone Đất & Tự Nhiên', list: DISTINCT_COLOR_PALETTES.filter(p => p.group === 'earth') },
         { key: 'neutral', title: '🌫️ Tone Trung Tính', list: DISTINCT_COLOR_PALETTES.filter(p => p.group === 'neutral') }
       ];
 
-      groups.forEach(g => {
+      const visibleGroups = activeColorGroupFilter === 'all'
+        ? allGroups
+        : allGroups.filter(g => g.key === activeColorGroupFilter);
+
+      visibleGroups.forEach(g => {
         const block = document.createElement('div');
-        block.className = 'bg-slate-50 border border-slate-200/80 rounded-xl p-2.5 space-y-1.5';
+        block.className = 'bg-slate-50/80 border border-slate-200/80 rounded-xl p-2.5 space-y-1.5';
 
         const title = document.createElement('div');
         title.className = 'text-[11px] font-bold text-slate-700 flex items-center justify-between';
@@ -599,15 +685,15 @@
         block.appendChild(title);
 
         const swatchesGrid = document.createElement('div');
-        swatchesGrid.className = 'flex flex-wrap items-center gap-2';
+        swatchesGrid.className = 'flex flex-wrap items-center gap-1.5 sm:gap-2';
 
         g.list.forEach(pal => {
-          const isSelected = (pal.id === selectedAddModalPaletteId);
-          const isUsed = usedClasses.has(pal.badgeClass);
+          const isSelected = (!customColorHex && pal.id === selectedAddModalPaletteId);
+          const isUsed = usedHexes.has(pal.hex.toLowerCase());
 
           const btn = document.createElement('button');
           btn.type = 'button';
-          btn.className = `color-swatch-ring w-7 h-7 sm:w-8 sm:h-8 rounded-xl flex items-center justify-center transition border-2 shadow-2xs relative ${
+          btn.className = `color-swatch-ring w-7 h-7 sm:w-8 sm:h-8 rounded-xl flex items-center justify-center transition border shadow-2xs relative ${
             isSelected ? 'ring-2 ring-offset-2 ring-brand-600 scale-110 border-white' : 'border-slate-300'
           }`;
           btn.style.backgroundColor = pal.hex;
@@ -619,6 +705,7 @@
 
           btn.onclick = () => {
             selectedAddModalPaletteId = pal.id;
+            customColorHex = null;
             updateSelectedColorLabel(pal, isUsed);
             renderColorSwatchesInAddModal(currentCats);
           };
@@ -630,31 +717,45 @@
         container.appendChild(block);
       });
 
-      const activePal = DISTINCT_COLOR_PALETTES.find(p => p.id === selectedAddModalPaletteId);
-      if (activePal) {
-        const isUsed = usedClasses.has(activePal.badgeClass);
-        updateSelectedColorLabel(activePal, isUsed);
+      if (!customColorHex) {
+        const activePal = DISTINCT_COLOR_PALETTES.find(p => p.id === selectedAddModalPaletteId);
+        if (activePal) {
+          const isUsed = usedHexes.has(activePal.hex.toLowerCase());
+          updateSelectedColorLabel(activePal, isUsed);
+        }
       }
+    }
+
+    function onCustomColorPicked(hexValue) {
+      if (!hexValue) return;
+      customColorHex = hexValue;
+      selectedAddModalPaletteId = null;
+
+      const labelEl = document.getElementById('selectedColorNameLabel');
+      if (labelEl) {
+        labelEl.textContent = `Tùy chọn: ${hexValue}`;
+        labelEl.style.color = hexValue;
+      }
+
+      const currentCats = getCategoriesForMonth(currentYear, currentMonth);
+      renderColorSwatchesInAddModal(currentCats);
     }
 
     function updateSelectedColorLabel(pal, isUsed) {
       const labelEl = document.getElementById('selectedColorNameLabel');
       if (labelEl) {
-        const groupTag = pal.group === 'warm' ? 'Nóng' : (pal.group === 'cool' ? 'Lạnh' : 'Trung tính');
-        labelEl.textContent = `${pal.label} (${groupTag})${isUsed ? ' - Đã có ca dùng' : ' - Màu mới'}`;
+        const groupTag = pal.group === 'warm' ? 'Nóng' : (pal.group === 'cool' ? 'Lạnh' : (pal.group === 'pastel' ? 'Pastel' : (pal.group === 'earth' ? 'Đất' : 'Xám')));
+        labelEl.textContent = `${pal.label} (${groupTag})${isUsed ? ' - Đã có ca dùng' : ' - Mới'}`;
+        labelEl.style.color = pal.hex;
       }
     }
 
-    /**
-     * NÚT RESET THÁNG: XÓA CẢ LỊCH CÁC NGÀY VÀ RESET LUÔN PHÂN LOẠI CA CỦA THÁNG
-     */
     function confirmResetCurrentMonth() {
       const monthDisplay = `Tháng ${currentMonth + 1}/${currentYear}`;
       showConfirmDialog(
         `Reset toàn bộ ${monthDisplay}?`,
         `Tất cả các ca trực, ghi chú và danh mục phân loại ca trong ${monthDisplay} sẽ bị xóa/reset hoàn toàn. Lịch và danh mục của các tháng khác vẫn được giữ nguyên.`,
         () => {
-          // 1. Xóa toàn bộ lịch các ngày của tháng
           const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
           for (let day = 1; day <= daysInMonth; day++) {
             const key = formatDateKey(currentYear, currentMonth, day);
@@ -663,7 +764,6 @@
             }
           }
 
-          // 2. Reset luôn phân loại ca của tháng đó về trống hoàn toàn
           const monthKey = getMonthKey(currentYear, currentMonth);
           monthlyShiftCategoriesStore[monthKey] = {};
           persistMonthlyShiftCategories();
@@ -677,9 +777,6 @@
       );
     }
 
-    /**
-     * MỞ CỬA SỔ THÊM CA (TẠI PHÂN LOẠI CA): ĐẦY ĐỦ TONE NÓNG & LẠNH
-     */
     function openAddCategoryShiftModal() {
       const monthDisplay = `Tháng ${currentMonth + 1}/${currentYear}`;
       document.getElementById('addCategoryShiftSubtitle').textContent = `Áp dụng riêng cho ${monthDisplay}`;
@@ -700,6 +797,8 @@
       const currentCats = getCategoriesForMonth(currentYear, currentMonth);
       const autoPal = getNextUnusedPalette(currentCats);
       selectedAddModalPaletteId = autoPal.id;
+      customColorHex = null;
+      activeColorGroupFilter = 'all';
 
       renderColorSwatchesInAddModal(currentCats);
 
@@ -715,9 +814,6 @@
       modal.classList.remove('flex');
     }
 
-    /**
-     * LƯU CA MỚI VÀO PHÂN LOẠI CỦA THÁNG
-     */
     function submitCategoryShiftModal() {
       const nameInput = document.getElementById('modalNewShift_name');
       const enteredName = nameInput ? nameInput.value.trim() : '';
@@ -744,7 +840,6 @@
 
       const currentCats = getCategoriesForMonth(currentYear, currentMonth);
 
-      // Tìm xem đã có nhóm ca nào mang tên này chưa
       const existingKey = Object.keys(currentCats).find(k => 
         (currentCats[k].label || '').trim().toLowerCase() === enteredName.toLowerCase()
       );
@@ -757,16 +852,37 @@
         if (!currentCats[existingKey].shifts) currentCats[existingKey].shifts = [];
         currentCats[existingKey].shifts.push(shiftStr);
       } else {
-        const chosenPalette = DISTINCT_COLOR_PALETTES.find(p => p.id === selectedAddModalPaletteId) 
-          || getNextUnusedPalette(currentCats);
+        let badgeClass = '';
+        let dot = '';
+        let hex = '';
+        let style = '';
+        let dotStyle = '';
+
+        if (customColorHex) {
+          hex = customColorHex;
+          // Tự động tạo style tương phản nhẹ nhàng cho màu tự do
+          badgeClass = 'border';
+          style = `background-color: ${hex}18; border-color: ${hex}55; color: ${hex};`;
+          dotStyle = `background-color: ${hex};`;
+        } else {
+          const chosenPalette = DISTINCT_COLOR_PALETTES.find(p => p.id === selectedAddModalPaletteId) 
+            || getNextUnusedPalette(currentCats);
+
+          badgeClass = chosenPalette.badgeClass;
+          dot = chosenPalette.dot;
+          hex = chosenPalette.hex;
+        }
 
         const newCatKey = 'CAT_' + Date.now().toString(36) + '_' + Math.random().toString(36).substr(2, 4);
 
         currentCats[newCatKey] = {
           code: newCatKey,
           label: enteredName,
-          badgeClass: chosenPalette.badgeClass,
-          dot: chosenPalette.dot,
+          badgeClass: badgeClass,
+          dot: dot,
+          hex: hex,
+          style: style,
+          dotStyle: dotStyle,
           shifts: [shiftStr]
         };
       }
@@ -779,9 +895,6 @@
       showToast(`Đã thêm ca "${enteredName}: ${shiftStr}" (Tháng ${currentMonth + 1}/${currentYear})!`, 'success');
     }
 
-    /**
-     * XÓA MỘT CA RA KHỎI PHÂN LOẠI CỦA THÁNG ĐANG XEM
-     */
     function deleteShiftFromMonthCategory(catCode, shiftStr) {
       const monthDisplay = `Tháng ${currentMonth + 1}/${currentYear}`;
       const currentCats = getCategoriesForMonth(currentYear, currentMonth);
@@ -790,7 +903,7 @@
 
       showConfirmDialog(
         `Xóa ca ${shiftStr}?`,
-        `Bạn có chắc chắn muốn xóa ca này khỏi "${catName}" của riêng ${monthDisplay}? Các tháng khác sẽ không bị ảnh hưởng.`,
+        `Bạn có chắc chắn muốn xóa ca này khỏi "${catName}" của riêng ${monthDisplay}? Các ngày trong tháng có ca này cũng sẽ được tự động xóa.`,
         () => {
           currentCats[catCode].shifts = (currentCats[catCode].shifts || []).filter(s => s !== shiftStr);
 
@@ -799,17 +912,36 @@
           }
 
           persistMonthlyShiftCategories();
+
+          // Quét và xóa sạch ca này khỏi tất cả các ngày trong tháng hiện tại
+          const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+          for (let day = 1; day <= daysInMonth; day++) {
+            const key = formatDateKey(currentYear, currentMonth, day);
+            if (schedules[key] && Array.isArray(schedules[key].shifts)) {
+              schedules[key].shifts = schedules[key].shifts.filter(s => {
+                if (typeof s === 'string') {
+                  return s !== shiftStr && !s.includes(shiftStr);
+                } else if (s && typeof s === 'object') {
+                  return s.time !== shiftStr && (!s.time || !s.time.includes(shiftStr));
+                }
+                return true;
+              });
+
+              if (schedules[key].shifts.length === 0 && !schedules[key].note) {
+                delete schedules[key];
+              }
+            }
+          }
+
+          persistData();
           renderLegendBar();
           renderModalShiftToggles();
           renderAllViews();
-          showToast(`Đã xóa ca ${shiftStr} khỏi ${monthDisplay}.`, 'info');
+          showToast(`Đã xóa ca ${shiftStr} khỏi danh mục và lịch trình ${monthDisplay}.`, 'info');
         }
       );
     }
 
-    /**
-     * TẠO DANH SÁCH GIỜ THEO 24H: CHỈ HIỂN THỊ SỐ THUẦN TÚY (00 ĐẾN 24)
-     */
     function generate24HourOptions(selectedValue = '') {
       let html = '<option value="">Giờ</option>';
       const normalizedSel = selectedValue !== '' ? String(selectedValue).padStart(2, '0') : '';
@@ -821,9 +953,6 @@
       return html;
     }
 
-    /**
-     * TẠO DANH SÁCH PHÚT: CHỈ HIỂN THỊ SỐ THUẦN TÚY (00 ĐẾN 55, BƯỚC NHẢY 5 PHÚT)
-     */
     function generateMinuteOptions(selectedValue = '') {
       let html = '<option value="">Phút</option>';
       const normalizedSel = (selectedValue !== '' && selectedValue !== null && selectedValue !== undefined)
@@ -846,9 +975,6 @@
       return html;
     }
 
-    /**
-     * CẬP NHẬT THANH CHÚ THÍCH PHÂN LOẠI CA
-     */
     function renderLegendBar() {
       const container = document.getElementById('legendContainer');
       if (!container) return;
@@ -856,10 +982,13 @@
       const currentCats = getCategoriesForMonth(currentYear, currentMonth);
 
       function renderGroupBadge(cat, catKey) {
+        const customBadgeStyle = cat.style ? `style="${cat.style}"` : '';
+        const customDotStyle = cat.dotStyle ? `style="${cat.dotStyle}"` : '';
+
         if (!cat.shifts || cat.shifts.length === 0) {
           return `
-            <div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-bold ${cat.badgeClass}">
-              <span class="w-2 h-2 rounded-full ${cat.dot}"></span>
+            <div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-bold ${cat.badgeClass || ''}" ${customBadgeStyle}>
+              <span class="w-2 h-2 rounded-full ${cat.dot || ''}" ${customDotStyle}></span>
               <span>${escapeHtml(cat.label)}: (Trống)</span>
             </div>
           `;
@@ -873,9 +1002,9 @@
         `).join(' ');
 
         return `
-          <div class="inline-flex items-center flex-wrap gap-1.5 px-2.5 py-1.5 rounded-xl font-bold ${cat.badgeClass}">
+          <div class="inline-flex items-center flex-wrap gap-1.5 px-2.5 py-1.5 rounded-xl font-bold ${cat.badgeClass || ''}" ${customBadgeStyle}>
             <div class="flex items-center gap-1">
-              <span class="w-2 h-2 rounded-full ${cat.dot}"></span>
+              <span class="w-2 h-2 rounded-full ${cat.dot || ''}" ${customDotStyle}></span>
               <span>${escapeHtml(cat.label)}:</span>
             </div>
             <div class="flex items-center flex-wrap gap-1">${shiftSpans}</div>
@@ -906,9 +1035,6 @@
       `;
     }
 
-    /**
-     * RENDER CÁC NHÓM CA TRONG MODAL SỬA NGÀY
-     */
     function renderModalShiftToggles() {
       const container = document.getElementById('modalShiftToggles');
       if (!container) return;
@@ -942,10 +1068,12 @@
         const groupCard = document.createElement('div');
         groupCard.className = 'p-3 rounded-xl border border-slate-200/80 bg-slate-50/60 space-y-2';
 
+        const customDotStyle = cat.dotStyle ? `style="${cat.dotStyle}"` : '';
+
         const header = document.createElement('div');
         header.className = 'flex items-center gap-1.5 text-xs font-bold text-slate-800';
         header.innerHTML = `
-          <span class="w-2 h-2 rounded-full ${cat.dot}"></span>
+          <span class="w-2 h-2 rounded-full ${cat.dot || ''}" ${customDotStyle}></span>
           <span>${escapeHtml(cat.label)}</span>
         `;
         groupCard.appendChild(header);
@@ -962,9 +1090,13 @@
             btn.type = 'button';
             btn.className = `py-2 px-3 rounded-xl text-xs font-semibold border transition text-left flex items-center justify-between cursor-pointer select-none ${
               isSelected
-                ? `${cat.badgeClass} ring-2 ring-offset-1 ring-brand-500 shadow-2xs`
+                ? `${cat.badgeClass || ''} ring-2 ring-offset-1 ring-brand-500 shadow-2xs`
                 : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-100'
             }`;
+            if (isSelected && cat.style) {
+              btn.style.cssText = cat.style;
+            }
+
             btn.onclick = () => toggleShiftInModal(shiftTime);
 
             btn.innerHTML = `
@@ -979,7 +1111,6 @@
         container.appendChild(groupCard);
       });
 
-      // Nếu ngày này có ca đặc biệt từng lưu trước đó, hiển thị để bỏ chọn nếu muốn
       const extraShifts = Array.from(tempSelectedShifts).filter(s => !allCatShifts.has(s));
       if (extraShifts.length > 0) {
         const extraCard = document.createElement('div');
@@ -1022,9 +1153,6 @@
       renderModalShiftToggles();
     }
 
-    /**
-     * LƯU DỮ LIỆU SAU KHI SỬA NGÀY
-     */
     function saveModalSchedule() {
       if (!activeEditingDate) return;
 
@@ -1068,12 +1196,9 @@
       activeEditingDate = null;
     }
 
-    /**
-     * GHI NHỚ VÀ KHÔI PHỤC VỊ TRÍ THÁNG/NĂM GẦN NHẤT
-     */
     function saveActiveView() {
       try {
-        localStorage.setItem('user_calendar_active_view_v4', JSON.stringify({
+        localStorage.setItem('user_calendar_active_view_v10', JSON.stringify({
           month: currentMonth,
           year: currentYear,
           viewMode: currentViewMode
@@ -1085,7 +1210,7 @@
 
     function restoreActiveView() {
       try {
-        const saved = localStorage.getItem('user_calendar_active_view_v4');
+        const saved = localStorage.getItem('user_calendar_active_view_v10');
         if (saved) {
           const parsed = JSON.parse(saved);
           if (parsed && typeof parsed.month === 'number' && typeof parsed.year === 'number') {
@@ -1287,9 +1412,6 @@
       return `${year}-${mm}-${dd}`;
     }
 
-    /**
-     * Xác định phân loại của một ca trực dựa trên cấu hình ca của đúng tháng đó
-     */
     function getShiftCategory(shiftItem, year = currentYear, month = currentMonth) {
       const cats = getCategoriesForMonth(year, month);
 
@@ -1301,7 +1423,9 @@
               label: cat.label,
               time: shiftItem,
               badgeClass: cat.badgeClass || 'bg-slate-100 text-slate-900 border-slate-300',
-              dot: cat.dot || 'bg-slate-500'
+              dot: cat.dot || 'bg-slate-500',
+              style: cat.style || '',
+              dotStyle: cat.dotStyle || ''
             };
           }
         }
@@ -1310,7 +1434,9 @@
           label: shiftItem,
           time: '',
           badgeClass: 'bg-slate-100 text-slate-800 border-slate-300',
-          dot: 'bg-slate-500'
+          dot: 'bg-slate-500',
+          style: '',
+          dotStyle: ''
         };
       } else if (shiftItem && typeof shiftItem === 'object') {
         return {
@@ -1318,7 +1444,9 @@
           label: shiftItem.label || (shiftItem.time || 'Ca trực'),
           time: shiftItem.time || '',
           badgeClass: 'bg-slate-100 text-slate-800 border-slate-300',
-          dot: 'bg-slate-500'
+          dot: 'bg-slate-500',
+          style: '',
+          dotStyle: ''
         };
       }
       return {
@@ -1326,7 +1454,9 @@
         label: String(shiftItem),
         time: '',
         badgeClass: 'bg-slate-100 text-slate-800 border-slate-300',
-        dot: 'bg-slate-500'
+        dot: 'bg-slate-500',
+        style: '',
+        dotStyle: ''
       };
     }
 
@@ -1424,9 +1554,12 @@
           shiftsHtml = dayData.shifts.map(s => {
             const cat = getShiftCategory(s, currentYear, currentMonth);
             const text = cat.time ? `${cat.label}: ${cat.time}` : cat.label;
+            const customBadgeStyle = cat.style ? `style="${cat.style}"` : '';
+            const customDotStyle = cat.dotStyle ? `style="${cat.dotStyle}"` : '';
+
             return `
-              <div class="badge-pop text-[11px] leading-snug px-1.5 py-0.5 rounded-md font-semibold border flex items-center gap-1 ${cat.badgeClass}">
-                <span class="w-1.5 h-1.5 rounded-full flex-shrink-0 ${cat.dot}"></span>
+              <div class="badge-pop text-[11px] leading-snug px-1.5 py-0.5 rounded-md font-semibold border flex items-center gap-1 ${cat.badgeClass || ''}" ${customBadgeStyle}>
+                <span class="w-1.5 h-1.5 rounded-full flex-shrink-0 ${cat.dot || ''}" ${customDotStyle}></span>
                 <span class="truncate">${escapeHtml(text)}</span>
               </div>
             `;
@@ -1521,9 +1654,12 @@
           shiftsBadgesHtml = dayData.shifts.map(s => {
             const cat = getShiftCategory(s, currentYear, currentMonth);
             const text = cat.time ? `${cat.label}: ${cat.time}` : cat.label;
+            const customBadgeStyle = cat.style ? `style="${cat.style}"` : '';
+            const customDotStyle = cat.dotStyle ? `style="${cat.dotStyle}"` : '';
+
             return `
-              <span class="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-lg border ${cat.badgeClass}">
-                <span class="w-1.5 h-1.5 rounded-full ${cat.dot}"></span>
+              <span class="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-lg border ${cat.badgeClass || ''}" ${customBadgeStyle}>
+                <span class="w-1.5 h-1.5 rounded-full ${cat.dot || ''}" ${customDotStyle}></span>
                 ${escapeHtml(text)}
               </span>
             `;
@@ -1639,7 +1775,6 @@
       modal.classList.add('flex');
     }
 
-    // Khởi tạo ứng dụng khi DOM tải xong
     window.addEventListener('DOMContentLoaded', () => {
       loadAllMonthlyShiftCategories();
       initializeScheduleData();
